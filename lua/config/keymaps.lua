@@ -94,7 +94,25 @@ map("n", "<leader>sw", function()
 end, { desc = "Search Current Word" })
 
 -- Menu de Codigo & LSP (<leader>c)
-map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
+map({ "n", "v" }, "<leader>ca", function()
+  local mode = vim.api.nvim_get_mode().mode
+  if mode == "v" or mode == "V" or mode == "\22" then
+    vim.lsp.buf.code_action()
+    return
+  end
+
+  local bufnr = vim.api.nvim_get_current_buf()
+  local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+  local line = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, false)[1] or ""
+  local line_len = #line
+
+  vim.lsp.buf.code_action({
+    range = {
+      start = { line = lnum, character = 0 },
+      ["end"] = { line = lnum, character = line_len },
+    },
+  })
+end, { desc = "Code Action (Whole Line)" })
 map("n", "<leader>cr", vim.lsp.buf.rename, { desc = "Rename Symbol" })
 map("n", "<leader>cf", function()
   -- Quando existe .vscode/settings.json, replica o "save" do time: organize
