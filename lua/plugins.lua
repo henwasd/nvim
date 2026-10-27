@@ -4,12 +4,17 @@ local M = {}
 M.specs = {
   "https://github.com/folke/which-key.nvim",
   "https://github.com/stevearc/oil.nvim",
+  "https://github.com/refractalize/oil-git-status.nvim",
   "https://github.com/echasnovski/mini.pick",
+  "https://github.com/echasnovski/mini.extra",
   "https://github.com/echasnovski/mini.icons",
   "https://github.com/echasnovski/mini.surround",
   "https://github.com/mg979/vim-visual-multi",
   "https://github.com/neovim/nvim-lspconfig",
   "https://github.com/nvim-treesitter/nvim-treesitter",
+  "https://github.com/supermaven-inc/supermaven-nvim",
+  "https://github.com/lewis6991/gitsigns.nvim",
+  "https://github.com/tpope/vim-fugitive",
 }
 
 function M.setup()
@@ -33,6 +38,32 @@ function M.setup()
       { "<leader>fb", desc = "Buffers" },
       { "<leader>ft", desc = "Terminal (cwd)" },
       { "<leader>fh", desc = "Help Tags" },
+      { "<leader>s", group = "search" },
+      { "<leader>sd", desc = "Diagnostics (Workspace)" },
+      { "<leader>sD", desc = "Diagnostics (Buffer)" },
+      { "<leader>ss", desc = "LSP Document Symbols" },
+      { "<leader>sS", desc = "LSP Workspace Symbols" },
+      { "<leader>sc", desc = "Commands" },
+      { "<leader>sk", desc = "Keymaps" },
+      { "<leader>sh", desc = "Command History" },
+      { "<leader>sm", desc = "Marks" },
+      { "<leader>sr", desc = "Registers" },
+      { "<leader>sl", desc = "Buffer Lines" },
+      { "<leader>so", desc = "Oldfiles (Recent Files)" },
+      { "<leader>st", desc = "Treesitter Nodes" },
+      { "<leader>sg", desc = "Git Commits" },
+      { "<leader>g", group = "git" },
+      { "<leader>gs", desc = "Git Status" },
+      { "<leader>gb", desc = "Git Blame Line" },
+      { "<leader>gp", desc = "Preview Hunk" },
+      { "<leader>gd", desc = "Diff This Hunk" },
+      { "<leader>gr", desc = "Reset Hunk" },
+      { "<leader>gR", desc = "Reset Buffer" },
+      { "<leader>ga", desc = "Stage Hunk" },
+      { "<leader>gu", desc = "Undo Stage Hunk" },
+      { "<leader>gc", desc = "Git Commits" },
+      { "<leader>gB", desc = "Git Branches" },
+      { "<leader>gt", desc = "Git Terminal" },
       { "<leader>b", group = "buffer" },
       { "<leader>bd", desc = "Delete Buffer" },
       { "<leader>c", group = "code" },
@@ -50,7 +81,7 @@ function M.setup()
     icons.setup()
   end
 
-  -- 3. Oil.nvim (navegacao em arquivos com velocidade maxima)
+  -- 3. Oil.nvim com status do Git assíncrono (oil-git-status)
   local ok_oil, oil = pcall(require, "oil")
   if ok_oil then
     oil.setup({
@@ -60,7 +91,17 @@ function M.setup()
       view_options = {
         show_hidden = true,
       },
+      win_options = {
+        signcolumn = "yes:2",
+      },
     })
+
+    local ok_oil_git, oil_git = pcall(require, "oil-git-status")
+    if ok_oil_git then
+      oil_git.setup({
+        show_ignored = false,
+      })
+    end
   end
 
   -- 4. Mini Pick (Fuzzy finder ultrarrapido em janela flutuante)

@@ -19,8 +19,11 @@ require("config.statusline").setup()
 -- 4. LSP Nativo, Autocomplete Nativo e Diagnósticos
 require("lsp").setup()
 
--- 5. Autocomandos nativos (sincronização de arquivos, highlight yank, etc.)
+-- 5. Integração com .vscode/settings.json (indentação, formatOnSave, Biome)
+require("config.project").setup()
+
+-- 6. Autocomandos nativos (sincronização de arquivos, highlight yank, etc.)
 require("config.autocmds")
 
--- 6. Atalhos de teclado personalizados
+-- 7. Atalhos de teclado personalizados
 require("config.keymaps")

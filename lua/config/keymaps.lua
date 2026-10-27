@@ -46,7 +46,7 @@ map("n", "<leader>e", function()
   if ok then oil.open() else vim.cmd("Ex") end
 end, { desc = "Explorer (Oil)" })
 
--- Menu de Busca e Navegacao (<leader>f)
+-- Helpers para busca com Mini Pick e Mini Extra
 local pick = function(fn_name)
   return function()
     local ok, p = pcall(require, "mini.pick")
@@ -56,18 +56,83 @@ local pick = function(fn_name)
   end
 end
 
+local extra_pick = function(fn_name, opts)
+  return function()
+    local ok, extra = pcall(require, "mini.extra")
+    if ok and extra.pickers and extra.pickers[fn_name] then
+      extra.pickers[fn_name](opts or {})
+    end
+  end
+end
+
+-- Menu de Arquivos e Navegacao (<leader>f)
 map("n", "<leader>ff", pick("files"), { desc = "Find Files" })
 map("n", "<leader>fg", pick("grep_live"), { desc = "Live Grep" })
 map("n", "<leader>fb", pick("buffers"), { desc = "Buffers" })
 map("n", "<leader>ft", function() terminal.toggle({ cwd = vim.fn.getcwd() }) end, { desc = "Terminal (cwd)" })
 map("n", "<leader>fh", pick("help"), { desc = "Help Tags" })
 
+-- Menu Geral de Busca / Search (<leader>s)
+map("n", "<leader>sd", extra_pick("diagnostic", { scope = "all" }), { desc = "Diagnostics (Workspace)" })
+map("n", "<leader>sD", extra_pick("diagnostic", { scope = "current" }), { desc = "Diagnostics (Buffer)" })
+map("n", "<leader>ss", extra_pick("lsp", { scope = "document_symbol" }), { desc = "Document Symbols" })
+map("n", "<leader>sS", extra_pick("lsp", { scope = "workspace_symbol" }), { desc = "Workspace Symbols" })
+map("n", "<leader>sc", extra_pick("commands"), { desc = "Commands" })
+map("n", "<leader>sk", extra_pick("keymaps"), { desc = "Keymaps" })
+map("n", "<leader>sh", extra_pick("history", { scope = ":" }), { desc = "Command History" })
+map("n", "<leader>sm", extra_pick("marks"), { desc = "Marks" })
+map("n", "<leader>sr", extra_pick("registers"), { desc = "Registers" })
+map("n", "<leader>sl", extra_pick("buf_lines", { scope = "current" }), { desc = "Buffer Lines" })
+map("n", "<leader>so", extra_pick("oldfiles"), { desc = "Oldfiles (Recent)" })
+map("n", "<leader>st", extra_pick("treesitter"), { desc = "Treesitter Nodes" })
+map("n", "<leader>sg", extra_pick("git_commits"), { desc = "Git Commits" })
+map("n", "<leader>sw", function()
+  local ok, p = pcall(require, "mini.pick")
+  if ok and p.builtin.grep then
+    p.builtin.grep({ pattern = vim.fn.expand("<cword>") })
+  end
+end, { desc = "Search Current Word" })
+
 -- Menu de Codigo & LSP (<leader>c)
 map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
 map("n", "<leader>cr", vim.lsp.buf.rename, { desc = "Rename Symbol" })
-map("n", "<leader>cf", function() vim.lsp.buf.format({ async = true }) end, { desc = "Format Document" })
+map("n", "<leader>cf", function()
+  -- Quando existe .vscode/settings.json, replica o "save" do time: organize
+  -- imports + fixAll do Biome e so depois formata (sempre com o Biome, que e a
+  -- fonte de verdade do biome.json). Sem .vscode, mantem o comportamento antigo.
+  require("config.project").format({ notify = true })
+end, { desc = "Format Document" })
 map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
 map("n", "<leader>cl", "<cmd>checkhealth vim.lsp<cr>", { desc = "LSP Info" })
+
+-- Menu Git (<leader>g) com Gitsigns + Mini Extra + Terminal
+local gs = function(action, ...)
+  local args = { ... }
+  return function()
+    local ok, gitsigns = pcall(require, "gitsigns")
+    if ok and gitsigns[action] then
+      gitsigns[action](unpack(args))
+    end
+  end
+end
+
+map("n", "<leader>gs", "<cmd>Git<cr>", { desc = "Git Status (Fugitive)" })
+map("n", "<leader>gb", gs("blame_line", { full = true }), { desc = "Git Blame Line" })
+map("n", "<leader>gp", gs("preview_hunk"), { desc = "Preview Hunk" })
+map("n", "<leader>gd", gs("diffthis"), { desc = "Diff Hunk" })
+map("n", "<leader>gr", gs("reset_hunk"), { desc = "Reset Hunk" })
+map("n", "<leader>gR", gs("reset_buffer"), { desc = "Reset Buffer" })
+map("n", "<leader>ga", gs("stage_hunk"), { desc = "Stage Hunk" })
+map("n", "<leader>gu", gs("undo_stage_hunk"), { desc = "Undo Stage Hunk" })
+map("n", "<leader>gc", extra_pick("git_commits"), { desc = "Git Commits (Pick)" })
+map("n", "<leader>gB", extra_pick("git_branches"), { desc = "Git Branches (Pick)" })
+map("n", "<leader>gt", function()
+  terminal.toggle({ cmd = "git log --oneline --graph --decorate -n 30" })
+end, { desc = "Git Log (Terminal)" })
+
+-- Navegação rápida entre hunks com [g e ]g
+map("n", "]g", gs("next_hunk"), { desc = "Next Git Hunk" })
+map("n", "[g", gs("prev_hunk"), { desc = "Previous Git Hunk" })
 
 -- Navegacao LSP & Diagnosticos
 map("n", "gd", vim.lsp.buf.definition, { desc = "Go to Definition" })
@@ -89,9 +154,13 @@ map("v", ">", ">gv")
 map("v", "J", ":m '>+1<cr>gv=gv", { desc = "Move Selection Down" })
 map("v", "K", ":m '<-2<cr>gv=gv", { desc = "Move Selection Up" })
 
--- Comportamento ergonomico do Menu de Autocomplete Nativo
+-- Comportamento ergonomico do Menu de Autocomplete Nativo e Supermaven (IA)
 map("i", "<Tab>", function()
-  if vim.fn.pumvisible() == 1 then
+  local ok_sm, sm_preview = pcall(require, "supermaven-nvim.completion_preview")
+  if ok_sm and sm_preview.has_suggestion() then
+    sm_preview.on_accept_suggestion()
+    return ""
+  elseif vim.fn.pumvisible() == 1 then
     return "<C-n>"
   elseif vim.snippet and vim.snippet.active({ direction = 1 }) then
     vim.snippet.jump(1)
@@ -99,7 +168,7 @@ map("i", "<Tab>", function()
   else
     return "<Tab>"
   end
-end, { expr = true, silent = true, desc = "Next Completion Item or Snippet Jump" })
+end, { expr = true, silent = true, desc = "Accept AI Suggestion / Next Completion Item / Snippet Jump" })
 
 map("i", "<S-Tab>", function()
   if vim.fn.pumvisible() == 1 then
