@@ -96,25 +96,34 @@ Uma configuração do **Neovim (v0.12+)** ultra-otimizada, limpa e moderna, cons
 | `Ctrl + h/j/k/l` | Normal | Navega entre divisões de janelas |
 | `Shift + h` / `Shift + l` | Normal | Alterna entre buffers abertos |
 | `<leader>e` | Normal | Abre o explorador de arquivos (**Oil**) com Git Status |
-| `<leader>ff` | Normal | **Busca arquivos** por nome (MiniPick) |
-| `<leader>fg` | Normal | **Busca texto em todo o projeto** (Live Grep) |
-| `<leader>fb` | Normal | Lista e alterna entre **buffers** |
-| `<leader>ft` ou `<C-/>` | Normal / Terminal | Abre/Alterna o **Terminal Flutuante no CWD** |
-| `<leader>fh` | Normal | Busca nas páginas de ajuda (**Help Tags**) |
+| `<leader>fe` | Normal | Abre o explorador de arquivos (**Oil**) no diretório do arquivo |
+| `<leader>fs` | Normal | **Salva** o arquivo atual (`:w`) |
+| `<leader>fS` | Normal | **Salva todos** os arquivos modificados (`:wa`) |
+| `<leader>fn` | Normal | Cria um **novo arquivo** vazio (`:enew`) |
+| `<leader>fr` | Normal | **Renomeia / move** o arquivo atual com prompt interativo |
+| `<leader>fd` | Normal | **Apaga** o arquivo atual do disco com confirmação |
+| `<leader>fy` | Normal | Copia o **caminho relativo** do arquivo para o clipboard |
+| `<leader>fY` | Normal | Copia o **caminho absoluto** do arquivo para o clipboard |
+| `<leader>ft` | Normal | Abre o terminal flutuante no diretório do **arquivo atual** |
+| `<leader>fR` | Normal | **Recarrega** o arquivo do disco descartando mudanças (`:edit!`) |
+| `<leader>sf` | Normal | Busca **arquivos** por nome (MiniPick) |
+| `<leader>sg` | Normal | Busca **texto** em todo o projeto (Live Grep) |
+| `<leader>sw` | Normal | Busca pela **palavra sob o cursor** |
+| `<leader>sb` | Normal | Lista e alterna entre **buffers** |
+| `<leader>so` | Normal | Busca arquivos recentes (**Oldfiles**) |
 | `<leader>sd` | Normal | Busca **Diagnósticos** do projeto/workspace |
 | `<leader>sD` | Normal | Busca **Diagnósticos** do buffer atual |
 | `<leader>ss` | Normal | Busca **Símbolos** do documento (LSP) |
 | `<leader>sS` | Normal | Busca **Símbolos** no workspace (LSP) |
-| `<leader>sw` | Normal | Busca pela **palavra sob o cursor** |
 | `<leader>sc` | Normal | Busca e executa **Comandos do Neovim** |
 | `<leader>sk` | Normal | Busca **Atalhos / Keymaps** |
 | `<leader>sh` | Normal | Busca no **Histórico de Comandos** |
 | `<leader>sm` | Normal | Busca **Marks** |
 | `<leader>sr` | Normal | Busca **Registros (Registers)** |
 | `<leader>sl` | Normal | Busca linhas no **Buffer Atual** |
-| `<leader>so` | Normal | Busca arquivos recentes (**Oldfiles**) |
+| `<leader>sH` | Normal | Busca nas páginas de ajuda (**Help Tags**) |
 | `<leader>st` | Normal | Busca nós de sintaxe (**Treesitter**) |
-| `<leader>sg` | Normal | Busca commits do **Git** (Pick) |
+| `<leader>sC` | Normal | Busca commits do **Git** (Pick) |
 | `<leader>gs` | Normal | Abre o **Git Status Interativo** (**Fugitive**) |
 | `<leader>gb` | Normal | Exibe **Git Blame** completo da linha atual |
 | `<leader>gp` | Normal | **Preview do Hunk** flutuante |

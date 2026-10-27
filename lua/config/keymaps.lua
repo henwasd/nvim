@@ -65,33 +65,98 @@ local extra_pick = function(fn_name, opts)
   end
 end
 
--- Menu de Arquivos e Navegacao (<leader>f)
-map("n", "<leader>ff", pick("files"), { desc = "Find Files" })
-map("n", "<leader>fg", pick("grep_live"), { desc = "Live Grep" })
-map("n", "<leader>fb", pick("buffers"), { desc = "Buffers" })
-map("n", "<leader>ft", function() terminal.toggle({ cwd = vim.fn.getcwd() }) end, { desc = "Terminal (cwd)" })
-map("n", "<leader>fh", pick("help"), { desc = "Help Tags" })
+-- Menu de Arquivos (<leader>f)
+map("n", "<leader>fe", function()
+  local ok, oil = pcall(require, "oil")
+  if ok then oil.open() else vim.cmd("Ex") end
+end, { desc = "File Explorer (Oil)" })
+map("n", "<leader>fs", "<cmd>w<cr>", { desc = "Save File" })
+map("n", "<leader>fS", "<cmd>wa<cr>", { desc = "Save All Files" })
+map("n", "<leader>fn", "<cmd>enew<cr>", { desc = "New File" })
+map("n", "<leader>fR", "<cmd>edit!<cr>", { desc = "Reload File from Disk" })
+map("n", "<leader>ft", function()
+  local dir = vim.fn.expand("%:p:h")
+  if dir == "" or vim.fn.isdirectory(dir) == 0 then
+    dir = vim.fn.getcwd()
+  end
+  terminal.toggle({ cwd = dir })
+end, { desc = "Terminal in Current File Dir" })
+map("n", "<leader>fy", function()
+  local path = vim.fn.expand("%:.")
+  if path ~= "" then
+    vim.fn.setreg("+", path)
+    vim.notify("Copiado relativo: " .. path, vim.log.levels.INFO, { title = "File" })
+  end
+end, { desc = "Yank Relative Path" })
+map("n", "<leader>fY", function()
+  local path = vim.fn.expand("%:p")
+  if path ~= "" then
+    vim.fn.setreg("+", path)
+    vim.notify("Copiado absoluto: " .. path, vim.log.levels.INFO, { title = "File" })
+  end
+end, { desc = "Yank Absolute Path" })
+map("n", "<leader>fr", function()
+  local old_name = vim.api.nvim_buf_get_name(0)
+  if old_name == "" then
+    vim.notify("Buffer sem nome em disco.", vim.log.levels.WARN, { title = "File" })
+    return
+  end
+  vim.ui.input({ prompt = "Novo caminho/nome: ", default = old_name, completion = "file" }, function(new_name)
+    if new_name and new_name ~= "" and new_name ~= old_name then
+      local ok, err = os.rename(old_name, new_name)
+      if ok then
+        vim.cmd.edit(new_name)
+        vim.api.nvim_buf_delete(vim.fn.bufnr(old_name), { force = true })
+        vim.notify("Renomeado para: " .. new_name, vim.log.levels.INFO, { title = "File" })
+      else
+        vim.notify("Erro ao renomear: " .. tostring(err), vim.log.levels.ERROR, { title = "File" })
+      end
+    end
+  end)
+end, { desc = "Rename / Move Current File" })
+map("n", "<leader>fd", function()
+  local path = vim.api.nvim_buf_get_name(0)
+  if path == "" then
+    vim.notify("Buffer sem arquivo associado.", vim.log.levels.WARN, { title = "File" })
+    return
+  end
+  vim.ui.input({ prompt = "Apagar " .. vim.fs.basename(path) .. "? (s/n): " }, function(input)
+    if input and (input:lower() == "s" or input:lower() == "sim" or input:lower() == "y") then
+      local ok, err = os.remove(path)
+      if ok then
+        vim.cmd.bdelete({ bang = true })
+        vim.notify("Arquivo apagado: " .. path, vim.log.levels.INFO, { title = "File" })
+      else
+        vim.notify("Erro ao apagar: " .. tostring(err), vim.log.levels.ERROR, { title = "File" })
+      end
+    end
+  end)
+end, { desc = "Delete Current File" })
 
 -- Menu Geral de Busca / Search (<leader>s)
-map("n", "<leader>sd", extra_pick("diagnostic", { scope = "all" }), { desc = "Diagnostics (Workspace)" })
-map("n", "<leader>sD", extra_pick("diagnostic", { scope = "current" }), { desc = "Diagnostics (Buffer)" })
-map("n", "<leader>ss", extra_pick("lsp", { scope = "document_symbol" }), { desc = "Document Symbols" })
-map("n", "<leader>sS", extra_pick("lsp", { scope = "workspace_symbol" }), { desc = "Workspace Symbols" })
-map("n", "<leader>sc", extra_pick("commands"), { desc = "Commands" })
-map("n", "<leader>sk", extra_pick("keymaps"), { desc = "Keymaps" })
-map("n", "<leader>sh", extra_pick("history", { scope = ":" }), { desc = "Command History" })
-map("n", "<leader>sm", extra_pick("marks"), { desc = "Marks" })
-map("n", "<leader>sr", extra_pick("registers"), { desc = "Registers" })
-map("n", "<leader>sl", extra_pick("buf_lines", { scope = "current" }), { desc = "Buffer Lines" })
-map("n", "<leader>so", extra_pick("oldfiles"), { desc = "Oldfiles (Recent)" })
-map("n", "<leader>st", extra_pick("treesitter"), { desc = "Treesitter Nodes" })
-map("n", "<leader>sg", extra_pick("git_commits"), { desc = "Git Commits" })
+map("n", "<leader>sf", pick("files"), { desc = "Search Files (Name)" })
+map("n", "<leader>sg", pick("grep_live"), { desc = "Search Text (Live Grep)" })
 map("n", "<leader>sw", function()
   local ok, p = pcall(require, "mini.pick")
   if ok and p.builtin.grep then
     p.builtin.grep({ pattern = vim.fn.expand("<cword>") })
   end
-end, { desc = "Search Current Word" })
+end, { desc = "Search Word under Cursor" })
+map("n", "<leader>sb", pick("buffers"), { desc = "Search Buffers" })
+map("n", "<leader>so", extra_pick("oldfiles"), { desc = "Search Recent Files (Oldfiles)" })
+map("n", "<leader>sd", extra_pick("diagnostic", { scope = "all" }), { desc = "Search Diagnostics (Workspace)" })
+map("n", "<leader>sD", extra_pick("diagnostic", { scope = "current" }), { desc = "Search Diagnostics (Buffer)" })
+map("n", "<leader>ss", extra_pick("lsp", { scope = "document_symbol" }), { desc = "Search Document Symbols" })
+map("n", "<leader>sS", extra_pick("lsp", { scope = "workspace_symbol" }), { desc = "Search Workspace Symbols" })
+map("n", "<leader>sc", extra_pick("commands"), { desc = "Search Commands" })
+map("n", "<leader>sk", extra_pick("keymaps"), { desc = "Search Keymaps" })
+map("n", "<leader>sh", extra_pick("history", { scope = ":" }), { desc = "Search Command History" })
+map("n", "<leader>sm", extra_pick("marks"), { desc = "Search Marks" })
+map("n", "<leader>sr", extra_pick("registers"), { desc = "Search Registers" })
+map("n", "<leader>sl", extra_pick("buf_lines", { scope = "current" }), { desc = "Search Buffer Lines" })
+map("n", "<leader>sH", pick("help"), { desc = "Search Help Tags" })
+map("n", "<leader>st", extra_pick("treesitter"), { desc = "Search Treesitter Nodes" })
+map("n", "<leader>sC", extra_pick("git_commits"), { desc = "Search Git Commits" })
 
 -- Menu de Codigo & LSP (<leader>c)
 map({ "n", "v" }, "<leader>ca", function()
