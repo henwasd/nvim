@@ -94,8 +94,6 @@ function M.setup()
     vim.cmd.edit(path)
   end, { desc = "Open LSP log file" })
 
-
-
   -- Biome (biomejs) para JS/TS/JSON/CSS/HTML - formatter + linter + organize imports.
   -- Normalmente o Biome e instalado POR PROJETO (node_modules/.bin/biome), sem
   -- binario global no PATH, por isso o cmd resolve o local primeiro.
@@ -107,26 +105,71 @@ function M.setup()
   })
   vim.lsp.enable("biome")
 
-  -- TypeScript Language Server (ts_ls) - apenas em workspaces com TypeScript < 7.
+  -- TypeScript / JavaScript Language Server (ts_ls) - workspaces com TypeScript < 7 ou projetos JS/Node.js.
   -- O TypeScript 7+ nao fornece tsserver.js; nesses projetos usamos o `tsc` nativo.
   vim.lsp.config("ts_ls", {
     root_dir = function(bufnr, on_dir)
-      local root = vim.fs.root(bufnr, { "tsconfig.json", "jsconfig.json", "package.json", ".git" })
+      -- Prioriza tsconfig/jsconfig/package.json mais proximo para suportar subpastas em monorepos (ex: /backend e /desktop-app)
+      local root = vim.fs.root(bufnr, { "tsconfig.json", "jsconfig.json", "package.json" })
+        or vim.fs.root(bufnr, { ".git" })
       if not root then
         return
       end
       local major = workspace_ts_major(root)
-      if not major or major >= 7 then
+      if major and major >= 7 then
         return
       end
       on_dir(root)
     end,
     cmd = function(dispatchers, config)
-      local bin = resolve_exec("typescript-language-server", (config or {}).root_dir) or "typescript-language-server"
+      local bin = resolve_exec("typescript-language-server", (config or {}).root_dir)
+        or find_exec("typescript-language-server")
+        or "typescript-language-server"
       return vim.lsp.rpc.start({ bin, "--stdio" }, dispatchers)
     end,
   })
   vim.lsp.enable("ts_ls")
+
+  -- Rust Analyzer (rust_analyzer) - suporte completo a Rust e Tauri v2 (Cargo, Clippy e Proc Macros)
+  if find_exec("rust-analyzer") then
+    vim.lsp.config("rust_analyzer", {
+      cmd = function(dispatchers, config)
+        local bin = resolve_exec("rust-analyzer", (config or {}).root_dir)
+          or find_exec("rust-analyzer")
+          or "rust-analyzer"
+        return vim.lsp.rpc.start({ bin }, dispatchers)
+      end,
+      root_dir = function(bufnr, on_dir)
+        local cargo_root = vim.fs.root(bufnr, { "Cargo.toml" })
+        if cargo_root then
+          on_dir(cargo_root)
+          return
+        end
+        local git_root = vim.fs.root(bufnr, { ".git" })
+        if git_root then
+          on_dir(git_root)
+        end
+      end,
+      settings = {
+        ["rust-analyzer"] = {
+          cargo = {
+            allFeatures = true,
+            buildScripts = {
+              enable = true,
+            },
+          },
+          checkOnSave = true,
+          check = {
+            command = "clippy",
+          },
+          procMacro = {
+            enable = true,
+          },
+        },
+      },
+    })
+    vim.lsp.enable("rust_analyzer")
+  end
 
   -- Tailwind CSS (v4) - IntelliSense de classes em JSX/TSX, CSS e HTML.
   -- O projeto RemotaSafe usa Tailwind v4 (CSS-first) com prefixo `tw`; o

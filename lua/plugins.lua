@@ -9,6 +9,7 @@ M.specs = {
   "https://github.com/echasnovski/mini.extra",
   "https://github.com/echasnovski/mini.icons",
   "https://github.com/echasnovski/mini.surround",
+  "https://github.com/echasnovski/mini.tabline",
   "https://github.com/mg979/vim-visual-multi",
   "https://github.com/neovim/nvim-lspconfig",
   "https://github.com/nvim-treesitter/nvim-treesitter",
@@ -114,10 +115,14 @@ function M.setup()
     end
   end
 
-  -- 4. Mini Pick (Fuzzy finder ultrarrapido em janela flutuante)
+  -- 4. Mini Pick & Mini Extra (Fuzzy finder ultrarrapido em janela flutuante)
   local ok_pick, pick = pcall(require, "mini.pick")
   if ok_pick then
     pick.setup()
+  end
+  local ok_extra, extra = pcall(require, "mini.extra")
+  if ok_extra then
+    extra.setup()
   end
 
   -- 5. Mini Surround (Manipulacao de aspas/parenteses com prefixo gz)
@@ -136,13 +141,71 @@ function M.setup()
     })
   end
 
-  -- 6. Treesitter (syntax highlighting avancado)
-  local ok_ts, ts_configs = pcall(require, "nvim-treesitter.configs")
-  if ok_ts then
-    ts_configs.setup({
-      highlight = { enable = true },
+  -- 5.1 Mini Tabline (Barra visual de buffers no topo)
+  local ok_tabline, tabline = pcall(require, "mini.tabline")
+  if ok_tabline then
+    tabline.setup({
+      show_icons = true,
+      set_as_default = true,
     })
   end
+
+  -- 6. Gitsigns (indicadores Git na coluna lateral e acoes de hunk)
+  local ok_gs, gitsigns = pcall(require, "gitsigns")
+  if ok_gs then
+    gitsigns.setup()
+  end
+
+  -- 7. Supermaven (autocompletion de IA de baixa latencia)
+  local ok_sm, supermaven = pcall(require, "supermaven-nvim")
+  if ok_sm then
+    supermaven.setup({
+      keymaps = {
+        accept_suggestion = nil, -- Gerenciado pelo <Tab> inteligente em keymaps.lua
+        clear_suggestion = "<C-]>",
+        accept_word = "<C-j>",
+      },
+    })
+  end
+
+  -- 8. Treesitter (branch main - syntax highlighting e indentacao nativos por buffer)
+  local ok_ts, ts = pcall(require, "nvim-treesitter")
+  if ok_ts and ts.install then
+    ts.install({
+      "bash",
+      "css",
+      "diff",
+      "html",
+      "javascript",
+      "json",
+      "lua",
+      "luadoc",
+      "markdown",
+      "markdown_inline",
+      "query",
+      "regex",
+      "rust",
+      "toml",
+      "tsx",
+      "typescript",
+      "vim",
+      "vimdoc",
+      "yaml",
+    })
+  end
+
+  vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("NativeTreesitter", { clear = true }),
+    callback = function(args)
+      if not pcall(vim.treesitter.start, args.buf) then
+        return
+      end
+      local lang = vim.treesitter.language.get_lang(vim.bo[args.buf].filetype)
+      if lang and #vim.treesitter.query.get_files(lang, "indents") > 0 then
+        vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+      end
+    end,
+  })
 
   -- Comandos convenientes para gerenciar pacotes nativos
   vim.api.nvim_create_user_command("PackUpdate", function()

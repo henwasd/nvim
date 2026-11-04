@@ -149,6 +149,7 @@ Uma configuração do **Neovim (v0.12+)** ultra-otimizada, limpa e moderna, cons
 | `Tab` | Insert | **Aceita sugestão de IA (Supermaven)** / Próximo item do Autocomplete / Pula Snippet |
 | `Ctrl + j` | Insert | Aceita a próxima palavra da sugestão de IA |
 | `Ctrl + ]` | Insert | Limpa / descarta sugestão atual de IA |
+| Ctrl + Space | Insert | Dispara o menu popup de sugestões (Autocomplete) sob demanda |
 | `Shift + Tab` | Insert | Sugestão anterior no Autocomplete / Snippet anterior |
 | `Enter` | Insert | Aceita sugestão do menu popup do Autocomplete |
 | `gza` / `gzd` / `gzr` | Normal / Visual | Adiciona / Deleta / Substitui delimitadores (surround) |
@@ -162,7 +163,8 @@ Tudo é configurado via API nativa do Neovim (`vim.lsp.config` / `vim.lsp.enable
 | Servidor | Quando atacha | Papel |
 | :--- | :--- | :--- |
 | **`tsc`** (TypeScript nativo) | Projetos com **TypeScript 7+** (`tsc --lsp`) | Tipos, hover, rename, code actions, diagnóstico |
-| **`ts_ls`** (typescript-language-server) | Projetos com **TypeScript < 7** | O mesmo, para versões antigas do TS |
+| **`ts_ls`** (typescript-language-server) | Projetos com **TypeScript < 7** ou **JS/Node.js** | O mesmo, para versões `< 7` do TS e backends Node.js |
+| **`rust_analyzer`** | Projetos **Rust / Tauri** (`Cargo.toml`) | Autocomplete, tipos, Clippy, Cargo features e proc-macros do Tauri |
 | **`biome`** | Projetos JS/TS/JSON/CSS/HTML com `biome.json` | Formatter, linter e organize imports |
 | **`tailwindcss`** | Projetos com Tailwind CSS v4 / v3 (classes `tw:`, CSS, JSX/TSX) | IntelliSense, completion e preview de classes |
 | **`typos_lsp`** | Buffers de código abertos | Corretor ortográfico de baixo falso-positivo |
@@ -189,7 +191,7 @@ O `.editorconfig` do projeto (2 espaços, LF, UTF-8) tem prioridade sobre o `.vs
 
 *   Syntax highlighting e indentação via **`nvim-treesitter` (branch `main`)**, intencionalmente sem plugins extras.
 *   Parsers instalados em `%LOCALAPPDATA%\nvim-data\site\parser` (Linux: `~/.local/share/nvim/site/parser`).
-*   Linguagens já configuradas em `lua/plugins.lua`: `bash`, `css`, `diff`, `html`, `javascript`, `json`, `lua`, `luadoc`, `markdown`, `markdown_inline`, `query`, `regex`, `toml`, `tsx`, `typescript`, `vim`, `vimdoc`, `yaml`.
+*   Linguagens já configuradas em `lua/plugins.lua`: `bash`, `css`, `diff`, `html`, `javascript`, `json`, `lua`, `luadoc`, `markdown`, `markdown_inline`, `query`, `regex`, `rust`, `toml`, `tsx`, `typescript`, `vim`, `vimdoc`, `yaml`.
 *   Para adicionar outra linguagem: inclua o nome na lista de `lua/plugins.lua` (ou rode `:lua require('nvim-treesitter').install('nome')`).
 
 #### Dependências do Treesitter

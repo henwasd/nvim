@@ -48,6 +48,8 @@ vim.opt.wildmode = "longest:full,full"
 
 -- Native LSP / Popup Completion
 vim.opt.completeopt = { "menu", "menuone", "popup", "noselect" }
+vim.opt.pumheight = 10 -- Limita a altura do popup para renderizacao rapida e sob demanda
+vim.opt.pumwidth = 15
 
 -- Use Ripgrep for :grep if installed
 if vim.fn.executable("rg") == 1 then

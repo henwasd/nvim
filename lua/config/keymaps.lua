@@ -30,6 +30,9 @@ map("n", "<C-l>", "<C-w>l", { desc = "Go to Right Window" })
 -- Navegacao de buffers
 map("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Previous Buffer" })
 map("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
+map("n", "<Tab>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
+map("n", "<S-Tab>", "<cmd>bprevious<cr>", { desc = "Previous Buffer" })
+map("n", "<leader><space>", "<cmd>b#<cr>", { desc = "Alternate Buffer (Previous)" })
 map("n", "[b", "<cmd>bprevious<cr>", { desc = "Previous Buffer" })
 map("n", "]b", "<cmd>bnext<cr>", { desc = "Next Buffer" })
 map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "Delete Buffer" })
@@ -167,14 +170,14 @@ map({ "n", "v" }, "<leader>ca", function()
   end
 
   local bufnr = vim.api.nvim_get_current_buf()
-  local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
-  local line = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, false)[1] or ""
+  local row = vim.api.nvim_win_get_cursor(0)[1]
+  local line = vim.api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1] or ""
   local line_len = #line
 
   vim.lsp.buf.code_action({
     range = {
-      start = { line = lnum, character = 0 },
-      ["end"] = { line = lnum, character = line_len },
+      start = { row, 0 },
+      ["end"] = { row, math.max(0, line_len - 1) },
     },
   })
 end, { desc = "Code Action (Whole Line)" })
@@ -271,3 +274,20 @@ map("i", "<CR>", function()
     return "<CR>"
   end
 end, { expr = true, silent = true, desc = "Accept Completion or Newline" })
+
+
+-- Disparo manual sob demanda do Autocomplete (Ctrl+Space e Ctrl+@ para suporte a qualquer terminal)
+local trigger_completion = function()
+  if vim.fn.pumvisible() == 1 then
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-n>", true, false, true), "n", false)
+    return
+  end
+  local clients = vim.lsp.get_clients({ bufnr = 0, method = "textDocument/completion" })
+  if #clients > 0 then
+    vim.lsp.completion.get()
+  else
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-x><C-n>", true, false, true), "n", false)
+  end
+end
+map("i", "<C-Space>", trigger_completion, { desc = "Trigger Autocomplete (LSP / Buffer)" })
+map("i", "<C-@>", trigger_completion, { desc = "Trigger Autocomplete (LSP / Buffer)" })

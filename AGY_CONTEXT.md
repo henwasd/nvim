@@ -93,7 +93,8 @@ Além disso, o binário nativo do TS 7 (`tsc --lsp`) tinha um *panic* em complet
 | Servidor | Condição de ativação | Implementação (seção `lua/lsp/init.lua`) |
 | :--- | :--- | :--- |
 | **`tsc`** | Qualquer workspace com **TS >= 7** (`tsc`/`tsgo` no projeto ou PATH que aceite `--lsp`) | `vim.lsp.enable("tsc")` usando a config padrão do nvim-lspconfig (ela mesma detecta o binário e não atacha se não suportar `--lsp`). |
-| **`ts_ls`** | Apenas workspaces com **TS < 7** | `root_dir` customizado: lê `node_modules/typescript/package.json` subindo os diretórios (suporta pnpm/monorepos) e só atacha quando o major é `< 7`. O `cmd` resolve `.cmd`/`.exe` (Windows) e `node_modules/.bin`. |
+| **`ts_ls`** | Workspaces com **TS < 7** ou projetos **JS/Node.js** sem TS local | `root_dir` customizado: prioriza `tsconfig.json`/`jsconfig.json`/`package.json` mais próximo (suporta subpastas em monorepos como `/backend` e `/desktop-app`) e só bloqueia quando `major >= 7`. |
+| **`rust_analyzer`** | Projetos **Rust / Tauri** (`Cargo.toml`) | `vim.lsp.config("rust_analyzer", ...)` com `allFeatures = true`, `clippy` no `checkOnSave` e `procMacro = { enable = true }` (suporte às macros do Tauri v2). |
 | **`biome`** | Projetos com `biome.json` (o config do lspconfig acha o arquivo) | `cmd` customizado que resolve `node_modules/.bin/biome[.cmd/.exe]` do projeto antes de tentar o PATH global (o Biome raramente é global). |
 | **`lua_ls`** | Apenas se `lua-language-server` estiver no PATH | Bloco opcional existente (hoje **não instalado** na máquina). |
 
