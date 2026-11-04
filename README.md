@@ -53,9 +53,12 @@ Uma configuração do **Neovim (v0.12+)** ultra-otimizada, limpa e moderna, cons
 *   Renderização em menos de **0.05ms** sem bibliotecas externas.
 *   Exibe modo do editor, branch Git atual, nome do arquivo com status de modificação, contadores de diagnóstico LSP (Erros e Avisos), tipo de arquivo e posição do cursor.
 
-### 🖥️ 5. Terminal Flutuante Nativo
-*   Janela flutuante centralizada e elegante acionada por atalho (`<C-/>` ou `<leader>ft`).
-*   Abre sempre no diretório atual de trabalho (`getcwd()`), perfeito para monorepos e projetos múltiplos.
+### 🖥️ 5. Gerenciador Multi-Terminal Flutuante Nativo
+*   **Múltiplos Terminais Concorrentes**: Suporte nativo a múltiplos terminais flutuantes rodando em paralelo sem plugins pesados adicionais.
+*   **Alternância Rápida**: Alterne entre instâncias com `Alt + ]` / `Alt + [` (direto do terminal) ou `<leader>t]` / `<leader>t[`.
+*   **Seletor Fuzzy com Mini.Pick**: Pressione `<leader>tl` para abrir o menu fuzzy e pular diretamente para qualquer terminal aberto ou renomeado.
+*   **Criação e Gestão**: Crie novos terminais com `<leader>tn` (ou `Alt + n`), feche com `<leader>tk` e renomeie com `<leader>tr`.
+*   **Toggle Universal**: `<C-/>` ou `<leader>tt` oculta/restaura o terminal instantaneamente mantendo o processo em background.
 *   Pressione `<Esc><Esc>` para entrar no modo Normal do terminal.
 
 ### 📂 6. Explorador de Arquivos com Oil (`oil.nvim`) + Git Status
@@ -80,6 +83,12 @@ Uma configuração do **Neovim (v0.12+)** ultra-otimizada, limpa e moderna, cons
 *   **Supermaven integrado via vim.pack**: Sugestões em linha instantâneas (ghost text) de alta precisão e baixíssimo consumo.
 *   **Integração fluida com `<Tab>`**: Aceita a sugestão de IA; se não houver sugestão ativa, navega pelo menu de completion nativo ou salta placeholders de snippets.
 *   Menu dedicado no Which-Key sob `<leader>a` (`<leader>as` status, `<leader>at` toggle, etc.).
+
+### 🎨 11. Renderização de Cores em Tempo Real (Colorizer)
+*   **`catgoose/nvim-colorizer.lua` via `vim.pack`**: Renderização em tempo real de cores diretamente no texto em arquivos CSS, SCSS, Sass, Less, HTML, JSX, TSX, etc.
+*   **Formatos Suportados**: Hex (`#RGB`, `#RRGGBB`, `#RRGGBBAA`), funções CSS (`rgb()`, `rgba()`, `hsl()`, `hsla()`, `oklch()`, `oklab()`), variáveis CSS (`var(--nome)`), nomes de cores CSS e classes de cores do Tailwind CSS.
+*   **Performance Extrema**: Processa somente as linhas visíveis do buffer em Lua puro sem travar arquivos grandes.
+*   **Controle Rápido**: `<leader>cc` alterna (toggle) a renderização de cores no buffer atual.
 
 ---
 
@@ -142,6 +151,14 @@ Uma configuração do **Neovim (v0.12+)** ultra-otimizada, limpa e moderna, cons
 | `<leader>cr` | Normal | Renomeia símbolo (**LSP Rename**) |
 | `<leader>cd` | Normal | Abre janela flutuante de diagnóstico na linha |
 | `<leader>cl` | Normal | Informações de saúde do LSP |
+| `<leader>cc` | Normal | Alterna realce de cores no buffer (**Toggle Colorizer**) |
+| `<leader>tt` / `Ctrl + /` | Normal / Terminal | Alterna visibilidade do terminal ativo (**Toggle Terminal**) |
+| `<leader>tn` / `Alt + n` | Normal / Terminal | Cria um **novo terminal** em paralelo |
+| `<leader>tl` | Normal | Lista / seleciona terminais abertos via **Mini.Pick** |
+| `<leader>t]` / `Alt + ]` | Normal / Terminal | Alterna para o **próximo terminal** |
+| `<leader>t[` / `Alt + [` | Normal / Terminal | Alterna para o **terminal anterior** |
+| `<leader>tk` | Normal | Fecha o **terminal atual** (**Kill Terminal**) |
+| `<leader>tr` | Normal | **Renomeia** o terminal atual |
 | `<leader>a` | Normal | Menu Supermaven IA (`as` status, `at` toggle, `ar` restart, etc.) |
 | `gd` / `gD` | Normal | Ir para a Definição / Declaração |
 | `K` | Normal | Exibe documentação flutuante (Hover) |

@@ -37,11 +37,25 @@ map("n", "[b", "<cmd>bprevious<cr>", { desc = "Previous Buffer" })
 map("n", "]b", "<cmd>bnext<cr>", { desc = "Next Buffer" })
 map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "Delete Buffer" })
 
--- Terminal Flutuante Nativo (Zero Plugins)
+-- Gerenciador Multi-Terminal Flutuante Nativo (Zero Plugins)
 local terminal = require("config.terminal")
 map({ "n", "t" }, "<C-/>", function() terminal.toggle({ cwd = vim.fn.getcwd() }) end, { desc = "Toggle Terminal (CWD)" })
 map({ "n", "t" }, "<c-_>", function() terminal.toggle({ cwd = vim.fn.getcwd() }) end, { desc = "Toggle Terminal (CWD)" })
 map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit Terminal Mode" })
+
+-- Atalhos rápidos de navegação dentro do modo Terminal (sem precisar sair para o Normal)
+map("t", "<A-]>", function() terminal.next() end, { desc = "Next Terminal" })
+map("t", "<A-[>", function() terminal.prev() end, { desc = "Previous Terminal" })
+map("t", "<A-n>", function() terminal.new({ cwd = vim.fn.getcwd() }) end, { desc = "New Terminal" })
+
+-- Menu de Terminal (<leader>t)
+map("n", "<leader>tt", function() terminal.toggle({ cwd = vim.fn.getcwd() }) end, { desc = "Toggle Terminal" })
+map("n", "<leader>tn", function() terminal.new({ cwd = vim.fn.getcwd() }) end, { desc = "New Terminal" })
+map("n", "<leader>tl", function() terminal.select() end, { desc = "List/Select Terminals" })
+map("n", "<leader>t]", function() terminal.next() end, { desc = "Next Terminal" })
+map("n", "<leader>t[", function() terminal.prev() end, { desc = "Previous Terminal" })
+map("n", "<leader>tk", function() terminal.kill() end, { desc = "Kill Terminal" })
+map("n", "<leader>tr", function() terminal.rename() end, { desc = "Rename Terminal" })
 
 -- Explorador de arquivos (Oil.nvim)
 map("n", "<leader>e", function()
@@ -190,6 +204,7 @@ map("n", "<leader>cf", function()
 end, { desc = "Format Document" })
 map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
 map("n", "<leader>cl", "<cmd>checkhealth vim.lsp<cr>", { desc = "LSP Info" })
+map("n", "<leader>cc", "<cmd>ColorizerToggle<cr>", { desc = "Toggle Colorizer" })
 
 -- Menu Git (<leader>g) com Gitsigns + Mini Extra + Terminal
 local gs = function(action, ...)
@@ -274,7 +289,6 @@ map("i", "<CR>", function()
     return "<CR>"
   end
 end, { expr = true, silent = true, desc = "Accept Completion or Newline" })
-
 
 -- Disparo manual sob demanda do Autocomplete (Ctrl+Space e Ctrl+@ para suporte a qualquer terminal)
 local trigger_completion = function()

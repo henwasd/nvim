@@ -30,6 +30,7 @@ Este documento registra detalhadamente **o que foi feito, por que foi feito e co
 | **Múltiplos Cursores** | `vim-visual-multi` | **`vim-visual-multi`** | Mantido via `vim.pack` (`Ctrl+N` para multi-cursor). |
 | **Which-Key** | `which-key.nvim` | **`which-key.nvim`** | Registrado via `vim.pack` com os menus limpos `f` (find), `b` (buffer), `c` (code), `e` (explorer), `a` (ai supermaven). |
 | **Assistente IA** | Nenhum / Copilot | **`supermaven-nvim`** | IA de autocompletion de latência ultrabaixa integrada via `vim.pack`. Priorizado no `<Tab>` inteligente em `lua/config/keymaps.lua` com fallback para autocomplete nativo e snippets. Atalhos: `<C-j>` (aceita palavra), `<C-]>` (dispensa), `<leader>a` (menu). |
+| **Renderização de Cores** | `mini.hipatterns` | **`catgoose/nvim-colorizer.lua`** | Pure Lua, zero overhead, processamento incremental restrito às linhas visíveis. Suporta `#hex` (3, 4, 6, 8 dígitos), `rgb()`, `rgba()`, `hsl()`, `hsla()`, `oklch()`, variáveis CSS `var(--...)`, nomes de cores CSS e classes Tailwind. Atalho `<leader>cc` para alternar. |
 
 ---
 

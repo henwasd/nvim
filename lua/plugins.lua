@@ -10,6 +10,7 @@ M.specs = {
   "https://github.com/echasnovski/mini.icons",
   "https://github.com/echasnovski/mini.surround",
   "https://github.com/echasnovski/mini.tabline",
+  "https://github.com/catgoose/nvim-colorizer.lua",
   "https://github.com/mg979/vim-visual-multi",
   "https://github.com/neovim/nvim-lspconfig",
   "https://github.com/nvim-treesitter/nvim-treesitter",
@@ -83,6 +84,15 @@ function M.setup()
       { "<leader>cr", desc = "Rename Symbol" },
       { "<leader>cd", desc = "Line Diagnostics" },
       { "<leader>cl", desc = "LSP Info" },
+      { "<leader>cc", desc = "Toggle Colorizer" },
+      { "<leader>t", group = "terminal" },
+      { "<leader>tt", desc = "Toggle Terminal" },
+      { "<leader>tn", desc = "New Terminal" },
+      { "<leader>tl", desc = "List / Select Terminals" },
+      { "<leader>t]", desc = "Next Terminal" },
+      { "<leader>t[", desc = "Previous Terminal" },
+      { "<leader>tk", desc = "Kill Terminal" },
+      { "<leader>tr", desc = "Rename Terminal" },
     })
   end
 
@@ -206,6 +216,36 @@ function M.setup()
       end
     end,
   })
+
+  -- 9. Colorizer (destaque de cores hex, rgb, hsl, css variables, oklch e tailwind)
+  local ok_col, colorizer = pcall(require, "colorizer")
+  if ok_col then
+    colorizer.setup({
+      filetypes = {
+        "*",
+        css = { names = true, css = true },
+        scss = { names = true, css = true },
+        sass = { names = true, css = true },
+        less = { names = true, css = true },
+        html = { names = true, css = true },
+      },
+      user_default_options = {
+        names = false,
+        RGB = true,
+        RRGGBB = true,
+        RRGGBBAA = true,
+        AARRGGBB = false,
+        rgb_fn = true,
+        hsl_fn = true,
+        css = true,
+        css_fn = true,
+        mode = "background",
+        tailwind = true,
+        sass = { enable = true, parsers = { "css" } },
+        virtualtext = "■",
+      },
+    })
+  end
 
   -- Comandos convenientes para gerenciar pacotes nativos
   vim.api.nvim_create_user_command("PackUpdate", function()
