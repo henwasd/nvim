@@ -1,221 +1,85 @@
-# ⚡ Neovim Native High-Performance Config (v0.12+)
+# 🚀 LazyVim Custom Config
 
-Uma configuração do **Neovim (v0.12+)** ultra-otimizada, limpa e moderna, construída utilizando o **máximo de recursos nativos do próprio Neovim** para atingir performance extrema e inicialização instantânea, sem o overhead de frameworks pesados.
+Uma configuração do Neovim limpa, moderna e altamente otimizada, baseada no framework **[LazyVim](https://github.com/LazyVim/LazyVim)** com atalhos de produtividade e integrações inteligentes personalizadas.
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📂 Estrutura do Projeto
 
 ```text
-~/.config/nvim/ (ou %LOCALAPPDATA%\nvim\)
-├── init.lua                 # Ponto de entrada limpo e modular
+~/.config/nvim/
+├── init.lua                 # Ponto de entrada (carrega lua/config/lazy.lua)
+├── lazyvim.json             # Estado dos extras ativados via :LazyExtras
+├── lazy-lock.json           # Lockfile de controle de versão dos plugins
 ├── LICENSE                  # Licença
-├── README.md                # Esta documentação
-├── AGY_INSTRUCTIONS.md      # Instruções de arquitetura para agentes
-├── AGY_CONTEXT.md           # Registro completo das decisões e histórico
-├── stylua.toml              # Regras de formatação do código Lua
+├── README.md                # Este README
+├── stylua.toml              # Formatação do StyLua
 └── lua/
-    ├── plugins.lua          # Gerenciamento de plugins nativo via vim.pack (Neovim 0.12)
     ├── config/
-    │   ├── options.lua      # Opções nativas e tema retrobox com transparência
-    │   ├── keymaps.lua      # Atalhos ergonômicos e atalhos de autocomplete
-    │   ├── autocmds.lua     # Sincronização externa de arquivos, highlight yank, etc.
-    │   ├── statusline.lua   # Statusline 100% nativa em Lua puro (zero plugins)
-    │   ├── terminal.lua     # Terminal flutuante 100% nativo em Lua puro
-    │   └── project.lua      # Integração com .vscode/settings.json (indentação, formatOnSave, Biome)
-    └── lsp/
-        └── init.lua         # LSP nativo (vim.lsp.config), autocomplete nativo e diagnósticos
+    │   ├── autocmds.lua     # Comandos automáticos (sincronização de arquivos externos)
+    │   ├── keymaps.lua      # Atalhos globais personalizados (Ctrl+S, Ctrl+A, Alt+Setas...)
+    │   ├── lazy.lua         # Bootstrapping do lazy.nvim e plugins do LazyVim
+    │   └── options.lua      # Configurações do Neovim (shell do Windows e Neovide)
+    └── plugins/
+        ├── colorscheme.lua  # Tema Gruvbox personalizado (com fundo transparente)
+        ├── diagnostics.lua  # Diagnósticos inline modernos (tiny-inline-diagnostic.nvim)
+        ├── example.lua      # Arquivo de exemplo para declarar novos plugins customizados
+        └── formatting.lua   # Lógica inteligente de formatação (Biome vs Prettier)
 ```
 
 ---
 
-## ✨ Principais Recursos & Filosofia Nativa
+## ✨ Recursos & Customizações
 
-### 📦 1. Gerenciamento de Pacotes Nativo (`vim.pack`)
-*   Zero dependência de gerenciadores externos pesados como `lazy.nvim`.
-*   Utiliza a API nativa **`vim.pack`** introduzida no Neovim core:
-    *   `:PackUpdate` — atualiza todos os plugins diretamente.
-    *   `:PackStatus` — visualiza o status e detalhes dos pacotes instalados.
+### 📦 Gerenciamento Moderno de Plugins
+*   **Lazy Loading**: Plugins carregados assincronamente sob demanda, mantendo o startup instantâneo (< 30ms).
+*   **Controle e Estabilidade**: Lockfile (`lazy-lock.json`) para congelar versões e evitar quebra por atualizações de terceiros.
+*   **LazyVim Extras**: Ative suporte a linguagens (como Tailwind, Rust, TypeScript) ou ferramentas visuais instantaneamente com `:LazyExtras`.
 
-### ⚡ 2. Autocomplete & Snippets 100% Nativos
-*   Alimentado pela engine nativa do Neovim **`vim.lsp.completion`**:
-    *   Zero plugins de autocomplete rodando em segundo plano.
-    *   Menu de sugestões popup e documentação integrados nativamente.
-    *   Suporte a expansão de snippets nativo (`vim.snippet`).
-    *   Navegação intuitiva: `<Tab>` e `<S-Tab>` percorrem sugestões ou pulam entre placeholders de snippets, e `<CR>` (Enter) aceita a sugestão.
+### 🔄 Sincronização Inteligente com o Disco (Integração com Git/agy)
+*   **Autoreload automático**: O Neovim detecta e recarrega arquivos que foram editados externamente (ex: pelo **Antigravity / agy** ou `git checkout`) assim que você foca o editor ou entra em um buffer, contanto que não haja conflitos não salvos.
 
-### 🎨 3. Tema Nativo 'Retrobox' com Transparência
-*   Utiliza o **`retrobox`** oficial embutido no binário do Neovim (a recriação oficial do clássico Gruvbox).
-*   Zero plugins de tema e zero I/O de disco para carregar o visual.
-*   Fundo e painéis transparentes configurados nativamente via API de highlights.
-
-### 📊 4. Statusline Nativa em Lua Puro
-*   Renderização em menos de **0.05ms** sem bibliotecas externas.
-*   Exibe modo do editor, branch Git atual, nome do arquivo com status de modificação, contadores de diagnóstico LSP (Erros e Avisos), tipo de arquivo e posição do cursor.
-
-### 🖥️ 5. Gerenciador Multi-Terminal Flutuante Nativo
-*   **Múltiplos Terminais Concorrentes**: Suporte nativo a múltiplos terminais flutuantes rodando em paralelo sem plugins pesados adicionais.
-*   **Alternância Rápida**: Alterne entre instâncias com `Alt + ]` / `Alt + [` (direto do terminal) ou `<leader>t]` / `<leader>t[`.
-*   **Seletor Fuzzy com Mini.Pick**: Pressione `<leader>tl` para abrir o menu fuzzy e pular diretamente para qualquer terminal aberto ou renomeado.
-*   **Criação e Gestão**: Crie novos terminais com `<leader>tn` (ou `Alt + n`), feche com `<leader>tk` e renomeie com `<leader>tr`.
-*   **Toggle Universal**: `<C-/>` ou `<leader>tt` oculta/restaura o terminal instantaneamente mantendo o processo em background.
-*   Pressione `<Esc><Esc>` para entrar no modo Normal do terminal.
-
-### 📂 6. Explorador de Arquivos com Oil (`oil.nvim`) + Git Status
-*   Edição de diretórios como se fossem buffers de texto padrão do Neovim (`<leader>e`).
-*   **Git Status Assíncrono (`oil-git-status.nvim`)**: Exibe as alterações do Git (Stage e Working Tree) diretamente na coluna lateral (`signcolumn`), sem travar a navegação em repositórios grandes.
-
-### 🔍 7. Busca Rápida com Mini.Pick & Mini.Extra (`<leader>f` e `<leader>s`)
-*   Fuzzy finder ultra-leve em janela flutuante (`mini.pick`).
-*   Integração direta com `ripgrep` (`rg`) e `fd` para velocidade instantânea de busca.
-*   **Menu de Busca Geral (`<leader>s`)**: Pesquisa diagnósticos do projeto (`sd`) ou do buffer (`sD`), símbolos LSP (`ss`/`sS`), comandos (`sc`), keymaps (`sk`), histórico (`sh`), arquivos recentes (`so`), marcas (`sm`) e commits (`sg`).
-
-### 🐙 8. Git Integrado de Alta Performance (`<leader>g`)
-*   **Vim-Fugitive (`tpope/vim-fugitive`)**: Interface interativa completa sob `<leader>gs` para staging (`s`), unstaging (`u`), visualização de diff (`=`) e commits (`cc`).
-*   **Gitsigns (`gitsigns.nvim`)**: Indicadores de alterações em tempo real no gutter (`│`, `_`, `┆`), navegação entre hunks (`]g`/`[g`), visualização de blame (`<leader>gb`) e diff flutuante (`<leader>gp`).
-
-### 🧙‍♂️ 9. Edição Avançada
-*   **Surround**: `mini.surround` com prefixo `gz` (`gza` adiciona, `gzd` deleta, `gzr` substitui delimitadores).
-*   **Múltiplos Cursores**: `vim-visual-multi` (`Ctrl+N` para selecionar ocorrências).
-*   **Which-Key**: Menu visual popup rápido e categorizado ao teclar `<Space>`.
-
-### 🤖 10. Autocompletion com IA (Supermaven)
-*   **Supermaven integrado via vim.pack**: Sugestões em linha instantâneas (ghost text) de alta precisão e baixíssimo consumo.
-*   **Integração fluida com `<Tab>`**: Aceita a sugestão de IA; se não houver sugestão ativa, navega pelo menu de completion nativo ou salta placeholders de snippets.
-*   Menu dedicado no Which-Key sob `<leader>a` (`<leader>as` status, `<leader>at` toggle, etc.).
-
-### 🎨 11. Renderização de Cores em Tempo Real (Colorizer)
-*   **`catgoose/nvim-colorizer.lua` via `vim.pack`**: Renderização em tempo real de cores diretamente no texto em arquivos CSS, SCSS, Sass, Less, HTML, JSX, TSX, etc.
-*   **Formatos Suportados**: Hex (`#RGB`, `#RRGGBB`, `#RRGGBBAA`), funções CSS (`rgb()`, `rgba()`, `hsl()`, `hsla()`, `oklch()`, `oklab()`), variáveis CSS (`var(--nome)`), nomes de cores CSS e classes de cores do Tailwind CSS.
-*   **Performance Extrema**: Processa somente as linhas visíveis do buffer em Lua puro sem travar arquivos grandes.
-*   **Controle Rápido**: `<leader>cc` alterna (toggle) a renderização de cores no buffer atual.
+### 🎨 Formatação de Código Dinâmica
+*   O plugin de formatação (`conform.nvim`) foi configurado de forma inteligente em `lua/plugins/formatting.lua`:
+    *   Usa **Biome** se detectar um arquivo `biome.json` ou `biome.jsonc` na raiz do projeto.
+    *   Cai de volta (**fallback**) para o **Prettier** se o Biome não estiver configurado para o projeto corrente.
 
 ---
 
-## ⌨️ Tabela de Atalhos Principais
+## ⌨️ Atalhos Personalizados Principais
 
-| Tecla / Atalho | Modo | Ação |
-| :--- | :--- | :--- |
-| `Espaço` (`<Space>`) | Normal / Visual | Tecla Leader (dispara o menu interativo **Which-Key**) |
-| `Ctrl + s` | Normal / Insert / Visual | Salva o arquivo rapidamente (`noautocmd w`) |
-| `Ctrl + a` | Normal / Visual | Seleciona todo o conteúdo do buffer (`ggVG`) |
-| `Ctrl + c` | Visual | Copia seleção para a área de transferência do sistema (`"+y`) |
-| `Ctrl + v` | Visual / Insert | Cola conteúdo da área de transferência (`"+p`) |
-| `Alt + Setas` | Todos | Redimensiona a janela ativa horizontal/verticalmente |
-| `Ctrl + h/j/k/l` | Normal | Navega entre divisões de janelas |
-| `Shift + h` / `Shift + l` | Normal | Alterna entre buffers abertos |
-| `<leader>e` | Normal | Abre o explorador de arquivos (**Oil**) com Git Status |
-| `<leader>fe` | Normal | Abre o explorador de arquivos (**Oil**) no diretório do arquivo |
-| `<leader>fs` | Normal | **Salva** o arquivo atual (`:w`) |
-| `<leader>fS` | Normal | **Salva todos** os arquivos modificados (`:wa`) |
-| `<leader>fn` | Normal | Cria um **novo arquivo** vazio (`:enew`) |
-| `<leader>fr` | Normal | **Renomeia / move** o arquivo atual com prompt interativo |
-| `<leader>fd` | Normal | **Apaga** o arquivo atual do disco com confirmação |
-| `<leader>fy` | Normal | Copia o **caminho relativo** do arquivo para o clipboard |
-| `<leader>fY` | Normal | Copia o **caminho absoluto** do arquivo para o clipboard |
-| `<leader>ft` | Normal | Abre o terminal flutuante no diretório do **arquivo atual** |
-| `<leader>fR` | Normal | **Recarrega** o arquivo do disco descartando mudanças (`:edit!`) |
-| `<leader>sf` | Normal | Busca **arquivos** por nome (MiniPick) |
-| `<leader>sg` | Normal | Busca **texto** em todo o projeto (Live Grep) |
-| `<leader>sw` | Normal | Busca pela **palavra sob o cursor** |
-| `<leader>sb` | Normal | Lista e alterna entre **buffers** |
-| `<leader>so` | Normal | Busca arquivos recentes (**Oldfiles**) |
-| `<leader>sd` | Normal | Busca **Diagnósticos** do projeto/workspace |
-| `<leader>sD` | Normal | Busca **Diagnósticos** do buffer atual |
-| `<leader>ss` | Normal | Busca **Símbolos** do documento (LSP) |
-| `<leader>sS` | Normal | Busca **Símbolos** no workspace (LSP) |
-| `<leader>sc` | Normal | Busca e executa **Comandos do Neovim** |
-| `<leader>sk` | Normal | Busca **Atalhos / Keymaps** |
-| `<leader>sh` | Normal | Busca no **Histórico de Comandos** |
-| `<leader>sm` | Normal | Busca **Marks** |
-| `<leader>sr` | Normal | Busca **Registros (Registers)** |
-| `<leader>sl` | Normal | Busca linhas no **Buffer Atual** |
-| `<leader>sH` | Normal | Busca nas páginas de ajuda (**Help Tags**) |
-| `<leader>st` | Normal | Busca nós de sintaxe (**Treesitter**) |
-| `<leader>sC` | Normal | Busca commits do **Git** (Pick) |
-| `<leader>gs` | Normal | Abre o **Git Status Interativo** (**Fugitive**) |
-| `<leader>gb` | Normal | Exibe **Git Blame** completo da linha atual |
-| `<leader>gp` | Normal | **Preview do Hunk** flutuante |
-| `<leader>gd` | Normal | **Diff** do hunk atual |
-| `<leader>gr` | Normal | **Reset (desfazer)** alterações do hunk |
-| `<leader>gR` | Normal | **Reset Buffer** (desfaz alterações no arquivo) |
-| `<leader>ga` | Normal | **Stage Hunk** (adiciona ao commit) |
-| `<leader>gu` | Normal | **Undo Stage Hunk** |
-| `<leader>gc` | Normal | Busca e navega em **Git Commits** (Pick) |
-| `<leader>gB` | Normal | Lista e troca **Git Branches** (Pick) |
-| `<leader>gt` | Normal | Abre **Git Log em Árvore** no terminal |
-| `]g` / `[g` | Normal | Navega para o próximo / anterior hunk |
-| `<leader>bd` | Normal | Fecha o buffer atual (**Delete Buffer**) |
-| `<leader>ca` | Normal / Visual | Ações de código (**Code Action**) |
-| `<leader>cf` | Normal | Formata o buffer atual via LSP / Biome |
-| `<leader>cr` | Normal | Renomeia símbolo (**LSP Rename**) |
-| `<leader>cd` | Normal | Abre janela flutuante de diagnóstico na linha |
-| `<leader>cl` | Normal | Informações de saúde do LSP |
-| `<leader>cc` | Normal | Alterna realce de cores no buffer (**Toggle Colorizer**) |
-| `<leader>tt` / `Ctrl + /` | Normal / Terminal | Alterna visibilidade do terminal ativo (**Toggle Terminal**) |
-| `<leader>tn` / `Alt + n` | Normal / Terminal | Cria um **novo terminal** em paralelo |
-| `<leader>tl` | Normal | Lista / seleciona terminais abertos via **Mini.Pick** |
-| `<leader>t]` / `Alt + ]` | Normal / Terminal | Alterna para o **próximo terminal** |
-| `<leader>t[` / `Alt + [` | Normal / Terminal | Alterna para o **terminal anterior** |
-| `<leader>tk` | Normal | Fecha o **terminal atual** (**Kill Terminal**) |
-| `<leader>tr` | Normal | **Renomeia** o terminal atual |
-| `<leader>a` | Normal | Menu Supermaven IA (`as` status, `at` toggle, `ar` restart, etc.) |
-| `gd` / `gD` | Normal | Ir para a Definição / Declaração |
-| `K` | Normal | Exibe documentação flutuante (Hover) |
-| `[d` / `]d` | Normal | Pula para o diagnóstico anterior / próximo |
-| `Tab` | Insert | **Aceita sugestão de IA (Supermaven)** / Próximo item do Autocomplete / Pula Snippet |
-| `Ctrl + j` | Insert | Aceita a próxima palavra da sugestão de IA |
-| `Ctrl + ]` | Insert | Limpa / descarta sugestão atual de IA |
-| Ctrl + Space | Insert | Dispara o menu popup de sugestões (Autocomplete) sob demanda |
-| `Shift + Tab` | Insert | Sugestão anterior no Autocomplete / Snippet anterior |
-| `Enter` | Insert | Aceita sugestão do menu popup do Autocomplete |
-| `gza` / `gzd` / `gzr` | Normal / Visual | Adiciona / Deleta / Substitui delimitadores (surround) |
+| Atalho | Modo | Ação |
+| :--- | :---: | :--- |
+| `Ctrl + A` | Normal / Visual | Seleciona todo o conteúdo do arquivo |
+| `Ctrl + S` | Normal / Insert / Visual | **Salva o arquivo sem formatar** (ignora autocmds) |
+| `:w` | Linha de comando | **Salva e formata** o arquivo atual (padrão) |
+| `:wa` ou `:wall` | Linha de comando | **Formata e salva todos os buffers** abertos e modificados |
+| `Ctrl + C` | Visual | Copia a seleção para a área de transferência do sistema |
+| `Ctrl + V` | Insert / Visual | Cola da área de transferência do sistema (livre em Normal para não quebrar splits no explorador) |
+| `Alt + ⬆️/⬇️/⬅️/➡️` | Todos | **Redimensiona painéis de janelas** (evita conflito do `Ctrl+Setas` no Windows Terminal) |
 
 ---
 
-## 🧠 Servidores LSP, Formatação e Treesitter
+## 🚀 Como Começar
 
-Tudo é configurado via API nativa do Neovim (`vim.lsp.config` / `vim.lsp.enable`) em `lua/lsp/init.lua`:
+### Pré-requisitos
+*   Neovim **0.9.0+**
+*   Git
+*   Uma [Nerd Font](https://www.nerdfonts.com/) instalada (ex: JetBrainsMono Nerd Font)
+*   Ripgrep & FD (para o buscador fuzzy Telescope funcionar perfeitamente)
 
-| Servidor | Quando atacha | Papel |
-| :--- | :--- | :--- |
-| **`tsc`** (TypeScript nativo) | Projetos com **TypeScript 7+** (`tsc --lsp`) | Tipos, hover, rename, code actions, diagnóstico |
-| **`ts_ls`** (typescript-language-server) | Projetos com **TypeScript < 7** ou **JS/Node.js** | O mesmo, para versões `< 7` do TS e backends Node.js |
-| **`rust_analyzer`** | Projetos **Rust / Tauri** (`Cargo.toml`) | Autocomplete, tipos, Clippy, Cargo features e proc-macros do Tauri |
-| **`biome`** | Projetos JS/TS/JSON/CSS/HTML com `biome.json` | Formatter, linter e organize imports |
-| **`tailwindcss`** | Projetos com Tailwind CSS v4 / v3 (classes `tw:`, CSS, JSX/TSX) | IntelliSense, completion e preview de classes |
-| **`typos_lsp`** | Buffers de código abertos | Corretor ortográfico de baixo falso-positivo |
-| **`lua_ls`** | Somente se `lua-language-server` estiver no PATH | Lua (edição desta config) |
-
-*   O TypeScript 7 **removeu** o `tsserver.js`, então o `ts_ls` clássico quebra nesses projetos. A solução é o **`tsc` nativo**; os dois servidores nunca ficam ativos no mesmo buffer.
-*   O `biome` é resolvido **primeiro no projeto** (`node_modules/.bin/biome[.cmd/.exe]`) e só depois no PATH — por isso funciona sem instalação global.
-*   `<leader>cf` replica o “save” do VS Code quando há `.vscode/settings.json`: `organizeImports` + `fixAll` do Biome e depois formata (só com o Biome, respeitando o `biome.json`), evitando formatação dupla com o `tsc`.
-
-### 🔗 Configurações do projeto (`.vscode`)
-
-`lua/config/project.lua` lê o `.vscode/settings.json` do projeto em runtime (JSONC) e aplica apenas o que tem equivalente real: `editor.tabSize`, `editor.insertSpaces`, `editor.formatOnSave`, `editor.defaultFormatter` (Biome) e `editor.codeActionsOnSave` (Biome). As chaves `js/ts.*`, `workbench.*` e os formatadores internos de JSON/HTML são intencionalmente ignorados.
-
-| Comando | Função |
-| :--- | :--- |
-| `:ProjectInfo` | Mostra o que foi resolvido do `.vscode` para o buffer atual |
-| `:ProjectAutoformat project` | Passa a formatar ao salvar seguindo `editor.formatOnSave` (a sessão começa em modo manual) |
-| `:ProjectAutoformat on\|off\|status` | Override imediato da sessão |
-| `:ProjectReload` | Recarrega o cache após o time editar o `settings.json` |
-
-O `.editorconfig` do projeto (2 espaços, LF, UTF-8) tem prioridade sobre o `.vscode`, assim como no VS Code.
-
-### 🌳 Treesitter (highlight + indentação)
-
-*   Syntax highlighting e indentação via **`nvim-treesitter` (branch `main`)**, intencionalmente sem plugins extras.
-*   Parsers instalados em `%LOCALAPPDATA%\nvim-data\site\parser` (Linux: `~/.local/share/nvim/site/parser`).
-*   Linguagens já configuradas em `lua/plugins.lua`: `bash`, `css`, `diff`, `html`, `javascript`, `json`, `lua`, `luadoc`, `markdown`, `markdown_inline`, `query`, `regex`, `rust`, `toml`, `tsx`, `typescript`, `vim`, `vimdoc`, `yaml`.
-*   Para adicionar outra linguagem: inclua o nome na lista de `lua/plugins.lua` (ou rode `:lua require('nvim-treesitter').install('nome')`).
-
-#### Dependências do Treesitter
-
-1.  **CLI `tree-sitter`** (a branch `main` compila os parsers): `npm install -g tree-sitter-cli`
-    *   Se o seu npm tiver `ignore-scripts=true`, o binário não é baixado automaticamente. Rode:
-        `node "$(npm root -g)/tree-sitter-cli/install.js"`
-2.  **Compilador C** no PATH (`gcc`, `clang` ou `cl`).
-
-> Se o `tree-sitter build` reclamar de *stale lock*, apague `%LOCALAPPDATA%\tree-sitter\lock\*.lock` e tente novamente.
+### Instalação no PC Novo
+1.  Faça o backup de qualquer configuração atual do Neovim:
+    ```powershell
+    # Windows (PowerShell)
+    Rename-Item -Path $env:LOCALAPPDATA\nvim -NewName nvim.backup
+    ```
+2.  Clone o repositório oficial na pasta correta:
+    ```powershell
+    # Windows (PowerShell)
+    git clone https://github.com/henriwasd/nvim.git $env:LOCALAPPDATA\nvim
+    ```
+3.  Inicie o Neovim! Ele baixará automaticamente o `lazy.nvim`, o core do `LazyVim` e todos os plugins listados:
+    ```powershell
+    nvim
+    ```
